@@ -21,7 +21,9 @@ example {t : ℝ} (h : ∃ a : ℝ, a * t < 0) : t ≠ 0 := by
     cancel -x at hxt'
     apply ne_of_gt
     apply hxt'
-  · sorry
+  · have hxt': 0<x*(-t):= by addarith[hxt]
+
+
 
 example : ∃ n : ℤ, 12 * n = 84 := by
   use 7
@@ -34,13 +36,24 @@ example (x : ℝ) : ∃ y : ℝ, y > x := by
 
 
 example : ∃ m n : ℤ, m ^ 2 - n ^ 2 = 11 := by
-  sorry
+  use 6
+  use 5
+  numbers
 
 example (a : ℤ) : ∃ m n : ℤ, m ^ 2 - n ^ 2 = 2 * a + 1 := by
-  sorry
+  use a+1
+  use a
+  ring
 
 example {p q : ℝ} (h : p < q) : ∃ x, p < x ∧ x < q := by
-  sorry
+  use (q+p)/2
+  constructor
+  calc
+    p=(p+p)/2:=by ring
+    _<(q+p)/2:=by rel[h]
+  calc
+    (q+p)/2<(q+q)/2:=by rel[h]
+    _=q:=by ring
 
 example : ∃ a b c d : ℕ,
     a ^ 3 + b ^ 3 = 1729 ∧ c ^ 3 + d ^ 3 = 1729 ∧ a ≠ c ∧ a ≠ d := by
@@ -66,17 +79,25 @@ example : ∃ x : ℝ, x < 0 ∧ x ^ 2 < 1 := by
 example : ∃ a b : ℕ, 2 ^ a = 5 * b + 1 := by
   sorry
 
+-- //(x+1/2)
 example (x : ℚ) : ∃ y : ℚ, y ^ 2 > x := by
-  sorry
+  use x^2+1
+  calc
+    (x^2+1)^2=x^4+2*x^2+1:=by ring
+    _>2*x^2:=by extra
 
 example {t : ℝ} (h : ∃ a : ℝ, a * t + 1 < a + t) : t ≠ 1 := by
-  sorry
+  obtain ⟨x, hx⟩ := h
+  obtain h1|h1:=le_or_gt x 1
+  -- (1-x)*(t-1)>0
 
 example {m : ℤ} (h : ∃ a, 2 * a = m) : m ≠ 5 := by
   sorry
 
 example {n : ℤ} : ∃ a, 2 * a ^ 3 ≥ n * a + 7 := by
-  sorry
+  have h|h :=le_or_succ_le n 0
+use 2
+use n+1
 
 example {a b c : ℝ} (ha : a ≤ b + c) (hb : b ≤ a + c) (hc : c ≤ a + b) :
     ∃ x y z, x ≥ 0 ∧ y ≥ 0 ∧ z ≥ 0 ∧ a = y + z ∧ b = x + z ∧ c = x + y := by
