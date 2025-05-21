@@ -124,7 +124,20 @@ example {t : ℝ} (h : ∃ a : ℝ, a * t + 1 < a + t) : t ≠ 1 := by
   addarith[h2']
 
 example {m : ℤ} (h : ∃ a, 2 * a = m) : m ≠ 5 := by
-  sorry
+  obtain ⟨x,h1⟩:=h
+  obtain h2|h2:=le_or_succ_le x 2
+  apply ne_of_lt
+  calc
+    m=2*x:=by addarith[h1]
+    _<=2*2:=by rel[h2]
+    _=4:=by ring
+    _<5:=by numbers
+  apply ne_of_gt
+  calc
+    m=2*x:=by addarith[h1]
+    _>=2*3:=by rel[h2]
+    _=6:=by ring
+    _>5:=by numbers
 
 example {n : ℤ} : ∃ a, 2 * a ^ 3 ≥ n * a + 7 := by
   have h:=le_or_succ_le n 0
@@ -147,4 +160,26 @@ example {n : ℤ} : ∃ a, 2 * a ^ 3 ≥ n * a + 7 := by
 
 example {a b c : ℝ} (ha : a ≤ b + c) (hb : b ≤ a + c) (hc : c ≤ a + b) :
     ∃ x y z, x ≥ 0 ∧ y ≥ 0 ∧ z ≥ 0 ∧ a = y + z ∧ b = x + z ∧ c = x + y := by
-  sorry
+  use (-a+b+c)/2
+  use (a-b+c)/2
+  use (a+b-c)/2
+  have ha': -a+b+c>=0:=by addarith[ha]
+  have hb': a-b+c>=0:=by addarith[hb]
+  have hc': a+b-c>=0:=by addarith[hc]
+  constructor
+  calc
+    (-a+b+c)/2>=0/2:=by rel[ha']
+    _=0:=by ring
+  constructor
+  calc
+    (a-b+c)/2>=0/2:=by rel[hb']
+    _=0:=by ring
+  constructor
+  calc
+    (a+b-c)/2>=0/2:=by rel[hc']
+    _=0:=by ring
+  constructor
+  ring
+  constructor
+  ring
+  ring
