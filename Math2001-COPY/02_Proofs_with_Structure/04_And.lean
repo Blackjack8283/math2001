@@ -117,10 +117,7 @@ example {x y : ℚ} (h : x + y = 5 ∧ x + 2 * y = 7) : x = 3 ∧ y = 2 := by
     _=7-5:=by rw[h1,h2]
     _=2:=by ring
   constructor
-  calc
-    x=5-y:=by addarith[h1]
-    _=5-2:=by rw[h3]
-    _=3:=by numbers
+  addarith[h1,h3]
   apply h3
 
 example {a b : ℝ} (h1 : a * b = a) (h2 : a * b = b) :
