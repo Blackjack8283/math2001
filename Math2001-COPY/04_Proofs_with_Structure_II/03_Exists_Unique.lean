@@ -21,7 +21,16 @@ example : ∃! a : ℝ, 3 * a + 1 = 7 := by
 
 
 example : ∃! x : ℚ, ∀ a, a ≥ 1 → a ≤ 3 → (a - x) ^ 2 ≤ 1 := by
-  sorry
+  use 2
+  dsimp
+  constructor
+  intro a h1 h2
+  have h3: 1+(a-2)>=0:=by addarith[h1]
+  have h3: 1-(a-2)>=0:=by addarith[h2]
+  calc
+    (a-2)^2<=(a-2)^2+(1+(a-2))*(1-(a-2)):=by extra
+    _=1:=by ring
+
 
 example {x : ℚ} (hx : ∃! a : ℚ, a ^ 2 = x) : x = 0 := by
   obtain ⟨a, ha1, ha2⟩ := hx

@@ -138,7 +138,11 @@ example {n : ℤ} (hn : n ^ 2 - 10 * n + 24 = 0) : Even n := by
     calc (n - 4) * (n - 6) = n ^ 2 - 10 * n + 24 := by ring
       _ = 0 := hn
   rw [mul_eq_zero] at hn1 -- `hn1 : n - 4 = 0 ∨ n - 6 = 0`
-  sorry
+  obtain hn|hn:=hn1
+  use 2
+  addarith[hn]
+  use 3
+  addarith[hn]
 
 example {x y : ℤ} (hx : Odd x) (hy : Odd y) : Odd (x + y + 1) := by
   rw [Int.odd_iff_modEq] at *
@@ -184,12 +188,62 @@ example {n : ℤ} : 63 ∣ n ↔ 7 ∣ n ∧ 9 ∣ n := by
   calc
     n=63*k:=hk
     _=9*(7*k):=by ring
+  intro ⟨⟨k, hk⟩, ⟨l, hl⟩⟩
+  have h3:=
+    calc
+      l=4*(9*l)-5*7*l:=by ring
+      _=4*n-5*7*l:=by rw[hl]
+      _=4*(7*k)-5*7*l:=by rw[hk]
+      _=7*(4*k-5*l):=by ring
+  use 4*k-5*l
+  rw[h3] at hl
+  rw[hl]
+  ring
 
 theorem dvd_iff_modEq {a n : ℤ} : n ∣ a ↔ a ≡ 0 [ZMOD n] := by
-  sorry
+  constructor
+  intro h
+  obtain ⟨k, hk⟩ := h
+  calc
+    a=n*k:=hk
+    _≡ 0 [ZMOD n] := by extra
+  intro h
+  obtain ⟨k, hk⟩ := h
+  have h1:=
+    calc
+      a=a-0:=by ring
+      _=n*k:=by rw[hk]
+  use k
+  apply h1
 
 example {a b : ℤ} (hab : a ∣ b) : a ∣ 2 * b ^ 3 - b ^ 2 + 3 * b := by
-  sorry
+  rw[Int.dvd_iff_modEq] at *
+  calc
+    2 * b ^ 3 - b ^ 2 + 3 * b≡ 2*0^3-0^2+3*0[ZMOD a] := by rel[hab]
+    _=0:=by ring
 
 example {k : ℕ} : k ^ 2 ≤ 6 ↔ k = 0 ∨ k = 1 ∨ k = 2 := by
-  sorry
+  constructor
+  intro h
+  have h1:=
+    calc
+      k^2<=6:=h
+      _<3^2:=by numbers
+  cancel 2 at h1
+  interval_cases k
+  left
+  numbers
+  right
+  left
+  numbers
+  right
+  right
+  numbers
+  intro h
+  obtain ha|ha|ha:=h
+  rw[ha]
+  numbers
+  rw[ha]
+  numbers
+  rw[ha]
+  numbers

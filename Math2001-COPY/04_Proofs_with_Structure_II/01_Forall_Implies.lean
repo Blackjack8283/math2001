@@ -138,10 +138,25 @@ example : ∃ n : ℕ, ∀ m : ℕ, n ≤ m := by
   extra
 
 example : ∃ a : ℝ, ∀ b : ℝ, ∃ c : ℝ, a + b < c := by
-  sorry
+  use 0
+  intro b
+  use b+1
+  calc
+    0+b=b:=by ring
+    _<b+1:=by extra
 
 example : forall_sufficiently_large x : ℝ, x ^ 3 + 3 * x ≥ 7 * x ^ 2 + 12 := by
-  sorry
+  dsimp
+  use 7
+  intro x h
+  calc
+    x ^ 3 + 3 * x= x*x ^ 2 + 3 * x:=by ring
+    _>=7*x^2+3*7:=by rel[h]
+    _=7*x^2+12+9:=by ring
+    _>=7*x^2+12:=by extra
 
 example : ¬(Prime 45) := by
-  sorry
+  apply not_prime 5 9
+  numbers
+  numbers
+  ring
