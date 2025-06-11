@@ -101,13 +101,41 @@ example : ¬ Prime 6 := by
 
 
 example {a : ℚ} (h : ∀ b : ℚ, a ≥ -3 + 4 * b - b ^ 2) : a ≥ 1 :=
-  sorry
+  calc
+    a>=-3+4*2-2^2:=by apply h
+    _=1:=by ring
 
 example {n : ℤ} (hn : ∀ m, 1 ≤ m → m ≤ 5 → m ∣ n) : 15 ∣ n := by
-  sorry
+  have h1: 3 ∣ n :=by
+    apply hn 3
+    numbers
+    numbers
+  have h2: 5 ∣ n :=by
+    apply hn 5
+    numbers
+    numbers
+
+  obtain ⟨a,ha⟩ := h1
+  obtain ⟨b,hb⟩ := h2
+  have h3: 3 ∣ b:=by
+    use 2*a-3*b
+    calc
+      b=2*(5*b)-9*b:=by ring
+      _=2*n-9*b:=by rw[hb]
+      _=2*(3*a)-9*b:=by rw[ha]
+      _=3*(2*a-3*b):=by ring
+  obtain ⟨c,hc⟩ := h3
+  use c
+  calc
+    n=5*b:=by apply hb
+    _=5*(3*c):=by rw[hc]
+    _=15*c:=by ring
+
 
 example : ∃ n : ℕ, ∀ m : ℕ, n ≤ m := by
-  sorry
+  use 0
+  intro m
+  extra
 
 example : ∃ a : ℝ, ∀ b : ℝ, ∃ c : ℝ, a + b < c := by
   sorry
