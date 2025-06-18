@@ -193,4 +193,18 @@ namespace Nat
 example (p : ℕ) (h : Prime p) : p = 2 ∨ Odd p := by
   obtain⟨h1,h2⟩:=h
   obtain p1 | p2: 2<p ∨ 2=p := lt_or_eq_of_le h1
-  ·
+  · right
+    have h3: ¬2∣p
+    · intro h4
+      obtain h5|h6:=h2 2 h4
+      · numbers at h5
+      · have h6: ¬2<p:=by addarith[h6]
+        contradiction
+    rw[Nat.odd_iff_not_even]
+    intro ⟨k,hk⟩
+    have h8: 2∣p
+    · use k
+      apply hk
+    contradiction
+  · left
+    addarith[p2]
