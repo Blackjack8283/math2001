@@ -68,7 +68,19 @@ example (n : ℤ) : Int.Even n ↔ ¬ Int.Odd n := by
     · contradiction
 
 example (n : ℤ) : Int.Odd n ↔ ¬ Int.Even n := by
-  sorry
+  constructor
+  · intro h1 h2
+    rw [Int.odd_iff_modEq] at h1
+    rw [Int.even_iff_modEq] at h2
+    have h:=
+    calc 0 ≡ n[ZMOD 2]:=by rel[h2]
+      _≡1[ZMOD 2]:=by rel[h1]
+    numbers at h
+  · intro h
+    obtain h1 | h2 := Int.even_or_odd n
+    · contradiction
+    · apply h2
+
 
 example (n : ℤ) : ¬(n ^ 2 ≡ 2 [ZMOD 3]) := by
   intro h
@@ -115,7 +127,13 @@ example (a b : ℤ) (h : ∃ q, b * q < a ∧ a < b * (q + 1)) : ¬b ∣ a := by
   calc b * k = a := by rw [hk]
     _ < b * (q + 1) := hq₂
   cancel b at h1
-  sorry
+  have h2:=
+  calc b*q<a:=hq₁
+    _=b*k:=hk
+  cancel b at h2
+  have h3: ¬k<q+1:=by addarith[h2]
+  contradiction
+
 
 example {p : ℕ} (hp : 2 ≤ p)  (T : ℕ) (hTp : p < T ^ 2)
     (H : ∀ (m : ℕ), 1 < m → m < T → ¬ (m ∣ p)) :
@@ -159,37 +177,145 @@ example : Prime 79 := by
     constructor <;> numbers
   · use 19
     constructor <;> numbers
-  · sorry
-  · sorry
-  · sorry
-  · sorry
+  · use 15
+    constructor <;> numbers
+  · use 13
+    constructor <;> numbers
+  · use 11
+    constructor <;> numbers
+  · use 9
+    constructor <;> numbers
 
 /-! # Exercises -/
 
 
 example : ¬ (∃ t : ℝ, t ≤ 4 ∧ t ≥ 5) := by
-  sorry
+  intro h
+  obtain⟨t,h1,h2⟩:=h
+  have h3:¬t>=5:=by addarith[h1]
+  contradiction
 
 example : ¬ (∃ a : ℝ, a ^ 2 ≤ 8 ∧ a ^ 3 ≥ 30) := by
-  sorry
+  intro h
+  obtain⟨a,h1,h2⟩:=h
+  obtain ha1 | ha2 := lt_or_le a 0
+  · have h3:=
+    calc a^3=a*(a^2):=by ring
+      _<=0*(a^2):=by rel[ha1]
+      _=0:=by ring
+    have h4: ¬a^3>=30:=by addarith[h3]
+    contradiction
+  · have h3:=
+    calc a^2<=8:=h1
+      _<3^2:=by numbers
+    cancel 2 at h3
+    have h4:=
+    calc a^3<3^3:=by rel[h3]
+      _=27:=by numbers
+    have h5: ¬a^3>=30:=by addarith[h4]
+    contradiction
+
 
 example : ¬ Int.Even 7 := by
-  sorry
+  intro h
+  rw [Int.even_iff_modEq] at h
+  have h1:=
+  calc 1≡1+2*3[ZMOD 2]:=by extra
+    _=7:=by ring
+    _≡0[ZMOD 2]:=h
+  numbers at h1
 
 example {n : ℤ} (hn : n + 3 = 7) : ¬ (Int.Even n ∧ n ^ 2 = 10) := by
-  sorry
+  have h1:n=4:=by addarith[hn]
+  intro ⟨h2,h3⟩
+  rw[h1] at h3
+  numbers at h3
 
 example {x : ℝ} (hx : x ^ 2 < 9) : ¬ (x ≤ -3 ∨ x ≥ 3) := by
-  sorry
+  intro h
+  obtain hx1 | hx2 := h
+  · have h1:-x>=3:=by addarith[hx1]
+    have h2:=
+    calc x^2=(-x)*(-x):=by ring
+      _>=3*3:=by rel[h1]
+      _=9:=by ring
+    have h3:¬x^2<9:=by addarith[h2]
+    contradiction
+  · have h2:=
+    calc x^2=x*x:=by ring
+      _>=3*3:=by rel[hx2]
+      _=9:=by ring
+    have h3:¬x^2<9:=by addarith[h2]
+    contradiction
 
 example : ¬ (∃ N : ℕ, ∀ k > N, Nat.Even k) := by
-  sorry
+  intro h
+  obtain⟨n,h1⟩:=h
+  have h2:n>=0:=by extra
+  have h3:=
+  calc n*2+1=n+n+1:=by ring
+    _>=n+0+1:=by rel[h2]
+    _=n+1:=by ring
+    _>n:=by extra
+  have h4:Nat.Even (n*2+1:ℕ):=h1 (n*2+1:ℕ) h3
+  have h5:Nat.Odd (n*2+1:ℕ)
+  · use n
+    ring
+  rw[Nat.odd_iff_not_even] at h5
+  contradiction
 
 example (n : ℤ) : ¬(n ^ 2 ≡ 2 [ZMOD 4]) := by
-  sorry
+  intro h
+  mod_cases hn : n % 4
+  · have h :=
+    calc (0:ℤ) = 0 ^ 2 := by numbers
+      _ ≡ n ^ 2 [ZMOD 4] := by rel [hn]
+      _ ≡ 2 [ZMOD 4] := by rel [h]
+    numbers at h -- contradiction!
+  · have h :=
+    calc (1:ℤ) = 1 ^ 2 := by numbers
+      _ ≡ n ^ 2 [ZMOD 4] := by rel [hn]
+      _ ≡ 2 [ZMOD 4] := by rel [h]
+    numbers at h -- contradiction!
+  · have h :=
+    calc (0:ℤ) ≡ 0+4*1[ZMOD 4]:=by extra
+      _ = 2 ^ 2 := by ring
+      _ ≡ n ^ 2 [ZMOD 4] := by rel [hn]
+      _ ≡ 2 [ZMOD 4] := by rel [h]
+    numbers at h -- contradiction!
+  · have h :=
+    calc (1:ℤ) ≡ 1+4*2[ZMOD 4]:=by extra
+      _ = 3 ^ 2 := by ring
+      _ ≡ n ^ 2 [ZMOD 4] := by rel [hn]
+      _ ≡ 2 [ZMOD 4] := by rel [h]
+    numbers at h -- contradiction!
+
 
 example : ¬ Prime 1 := by
-  sorry
+  intro h
+  obtain⟨h1,h2⟩:=h
+  numbers at h1
 
 example : Prime 97 := by
-  sorry
+  apply better_prime_test (T := 10)
+  · numbers
+  · numbers
+  intro m hm1 hm2
+  apply Nat.not_dvd_of_exists_lt_and_lt
+  interval_cases m
+  · use 48
+    constructor <;> numbers
+  · use 32
+    constructor <;> numbers
+  · use 24
+    constructor <;> numbers
+  · use 19
+    constructor <;> numbers
+  · use 16
+    constructor <;> numbers
+  · use 13
+    constructor <;> numbers
+  · use 12
+    constructor <;> numbers
+  · use 10
+    constructor <;> numbers
