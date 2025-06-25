@@ -20,7 +20,12 @@ example (P Q : Prop) : ¬ (P ∧ Q) ↔ (¬ P ∨ ¬ Q) := by
       contradiction
     · left
       apply hP
-  · sorry
+  · intro h
+    obtain h1|h2:=h
+    · intro ⟨h3,h4⟩
+      contradiction
+    · intro ⟨h3,h4⟩
+      contradiction
 
 example :
     ¬(∀ m : ℤ, m ≠ 2 → ∃ n : ℤ, n ^ 2 = m) ↔ ∃ m : ℤ, m ≠ 2 ∧ ∀ n : ℤ, n ^ 2 ≠ m :=
@@ -32,7 +37,11 @@ example :
 
 example : ¬(∀ n : ℤ, ∃ m : ℤ, n ^ 2 < m ∧ m < (n + 1) ^ 2)
     ↔ ∃ n : ℤ, ∀ m : ℤ, n ^ 2 ≥ m ∨ m ≥ (n + 1) ^ 2 :=
-  sorry
+  calc
+    ¬(∀ n : ℤ, ∃ m : ℤ, n ^ 2 < m ∧ m < (n + 1) ^ 2) ↔ ∃ n : ℤ, ¬(∃ m : ℤ, n ^ 2 < m ∧ m < (n + 1) ^ 2) := by rel [not_forall]
+    _↔∃ n : ℤ,∀ m : ℤ,¬(n ^ 2 < m ∧ m < (n + 1) ^ 2):=by rel[not_exists]
+    _↔∃ n : ℤ,∀ m : ℤ,(¬(n ^ 2 < m)∨¬(m < (n + 1) ^ 2)):=by rel[not_and_or]
+    _↔∃ n : ℤ,∀ m : ℤ, n ^ 2 ≥ m ∨ m ≥ (n + 1) ^ 2:=by rel[not_lt]
 
 #push_neg ¬(∀ m : ℤ, m ≠ 2 → ∃ n : ℤ, n ^ 2 = m)
   -- ∃ m : ℤ, m ≠ 2 ∧ ∀ (n : ℤ), n ^ 2 ≠ m
@@ -55,19 +64,60 @@ example : ¬ (∃ n : ℕ, n ^ 2 = 2) := by
     calc
       n ^ 2 ≤ 1 ^ 2 := by rel [hn]
       _ < 2 := by numbers
-  · sorry
+  · apply ne_of_gt
+    calc
+      2<2^2:=by numbers
+      _<=n^2:=by rel[hn]
+
 
 /-! # Exercises -/
 
 
 example (P : Prop) : ¬ (¬ P) ↔ P := by
-  sorry
+  constructor
+  · intro h
+    by_cases h1:P
+    · apply h1
+    · contradiction
+  · intro H h1
+    contradiction
 
 example (P Q : Prop) : ¬ (P → Q) ↔ (P ∧ ¬ Q) := by
-  sorry
+  constructor
+  · intro h1
+    constructor
+    · by_cases h2:P
+      · apply h2
+      · have h3:P->Q
+        · intro h4
+          contradiction
+        contradiction
+    · by_cases h2:Q
+      · have h3:P->Q
+        · intro h4
+          apply h2
+        contradiction
+      · apply h2
+  · intro h1
+    obtain ⟨h2,h3⟩:=h1
+    intro h4
+    have h5:Q:=h4 h2
+    contradiction
+
 
 example (P : α → Prop) : ¬ (∀ x, P x) ↔ ∃ x, ¬ P x := by
-  sorry
+  constructor
+  · intro h
+    by_cases h1:(∃ x, ¬ P x)
+    · apply h1
+    · have h2:
+
+      contradiction
+  · intro⟨x,h1⟩
+    intro h2
+    have h3:P x:=h2 x
+    contradiction
+
 
 example : (¬ ∀ a b : ℤ, a * b = 1 → a = 1 ∨ b = 1)
     ↔ ∃ a b : ℤ, a * b = 1 ∧ a ≠ 1 ∧ b ≠ 1 :=

@@ -70,8 +70,8 @@ example : ∃ k : ℕ, Superpowered k ∧ ¬ Superpowered (k + 1) := by
 
 
 example {P : Prop} (hP : ¬¬P) : P := by
-  by_cases hP : P
-  · apply hP
+  by_cases hP2 : P
+  · apply hP2
   · contradiction
 
 /-! # Exercises -/
@@ -80,10 +80,49 @@ example {P : Prop} (hP : ¬¬P) : P := by
 def Tribalanced (x : ℝ) : Prop := ∀ n : ℕ, (1 + x / n) ^ n < 3
 
 example : ∃ x : ℝ, Tribalanced x ∧ ¬ Tribalanced (x + 1) := by
-  sorry
+  by_cases h: Tribalanced 1
+  · use 1
+    constructor
+    · apply h
+    · intro h1
+      conv at h1 => ring
+      have h2:(1 + (2:ℝ) / (1:ℕ)) ^ 1 < 3:=h1 1
+      numbers at h2
+  · use 0
+    constructor
+    · dsimp[Tribalanced]
+      intro n
+      calc
+        (1+(0:ℝ)/n)^n=1^n:=by ring
+        _=1:=by ring
+        _<3:=by numbers
+    · conv => ring
+      apply h
 
 example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
-  sorry
+  constructor
+  · intro h1 h2
+    by_cases h3: P
+    · apply h3
+    · have h4:¬Q:=h1 h3
+      contradiction
+  · intro h1 h2
+    by_cases h3:Q
+    · have h4:P:=h1 h3
+      contradiction
+    · apply h3
 
 example : ∃ k : ℕ, Superpowered k ∧ ¬ Superpowered (k + 1) := by
-  sorry
+  use 1
+  constructor
+  · apply superpowered_one
+  · conv => ring
+    intro h
+    have h1: Prime (2^2^5+1):=h 5
+    conv at h1 => ring
+    have h2: ¬Prime 4294967297
+    · apply not_prime 641 6700417
+      numbers
+      numbers
+      ring
+    contradiction
