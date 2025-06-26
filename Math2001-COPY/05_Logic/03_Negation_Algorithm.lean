@@ -107,11 +107,17 @@ example (P Q : Prop) : ¬ (P → Q) ↔ (P ∧ ¬ Q) := by
 
 example (P : α → Prop) : ¬ (∀ x, P x) ↔ ∃ x, ¬ P x := by
   constructor
-  · intro h
-    by_cases h1:(∃ x, ¬ P x)
-    · apply h1
-    · have h2:
-
+  · intro h1
+    by_cases h2: (∃ x, ¬ P x)
+    · apply h2
+    · have h3: (∀ x, P x)
+      · intro x
+        by_cases h4: P x
+        · apply h4
+        · have h5: (∃ x, ¬ P x)
+          · use x
+            apply h4
+          contradiction
       contradiction
   · intro⟨x,h1⟩
     intro h2
@@ -121,13 +127,23 @@ example (P : α → Prop) : ¬ (∀ x, P x) ↔ ∃ x, ¬ P x := by
 
 example : (¬ ∀ a b : ℤ, a * b = 1 → a = 1 ∨ b = 1)
     ↔ ∃ a b : ℤ, a * b = 1 ∧ a ≠ 1 ∧ b ≠ 1 :=
-  sorry
+  calc (¬ ∀ a b : ℤ, a * b = 1 → a = 1 ∨ b = 1)
+      ↔ ∃ a : ℤ, ¬ (∀ b : ℤ, a * b = 1 → a = 1 ∨ b = 1):=by rel[not_forall]
+    _ ↔ ∃ a b : ℤ, ¬ (a * b = 1 → a = 1 ∨ b = 1):=by rel[not_forall]
+    _ ↔ ∃ a b : ℤ, a * b = 1 ∧ ¬(a = 1 ∨ b = 1):=by rel[not_imp]
+    _ ↔ ∃ a b : ℤ, a * b = 1 ∧ a ≠ 1 ∧ b ≠ 1:=by rel[not_or]
+
 
 example : (¬ ∃ x : ℝ, ∀ y : ℝ, y ≤ x) ↔ (∀ x : ℝ, ∃ y : ℝ, y > x) :=
-  sorry
+  calc (¬ ∃ x : ℝ, ∀ y : ℝ, y ≤ x)
+      ↔ ∀ x : ℝ, ¬(∀ y : ℝ, y ≤ x) := by rel[not_exists]
+    _ ↔ ∀ x : ℝ, ∃ y : ℝ, ¬(y ≤ x) := by rel[not_forall]
+    _ ↔ ∀ x : ℝ, ∃ y : ℝ, y > x := by rel[not_le]
 
 example : ¬ (∃ m : ℤ, ∀ n : ℤ, m = n + 5) ↔ ∀ m : ℤ, ∃ n : ℤ, m ≠ n + 5 :=
-  sorry
+  calc ¬ (∃ m : ℤ, ∀ n : ℤ, m = n + 5)
+      ↔ ∀ m : ℤ, ¬(∀ n : ℤ, m = n + 5) := by rel[not_exists]
+    _ ↔ ∀ m : ℤ, ∃ n : ℤ, m ≠ n + 5 := by rel[not_forall]
 
 #push_neg ¬(∀ n : ℕ, n > 0 → ∃ k l : ℕ, k < n ∧ l < n ∧ k ≠ l)
 #push_neg ¬(∀ m : ℤ, m ≠ 2 → ∃ n : ℤ, n ^ 2 = m)
@@ -137,16 +153,30 @@ example : ¬ (∃ m : ℤ, ∀ n : ℤ, m = n + 5) ↔ ∀ m : ℤ, ∃ n : ℤ,
 
 example : ¬ (∀ x : ℝ, x ^ 2 ≥ x) := by
   push_neg
-  sorry
+  use 0.5
+  numbers
 
 example : ¬ (∃ t : ℝ, t ≤ 4 ∧ t ≥ 5) := by
   push_neg
-  sorry
+  intro t
+  obtain h1|h1:=le_or_lt t 4
+  · right
+    calc t<=4:=h1
+      _<5:=by numbers
+  · left
+    apply h1
 
 example : ¬ Int.Even 7 := by
   dsimp [Int.Even]
   push_neg
-  sorry
+  intro k
+  obtain h1|h1:=le_or_succ_le k 3
+  · apply ne_of_gt
+    calc 2*k<=2*3:=by rel[h1]
+      _<7:=by numbers
+  · apply ne_of_lt
+    calc 7<2*4:=by numbers
+      _<=2*k:=by rel[h1]
 
 example {p : ℕ} (k : ℕ) (hk1 : k ≠ 1) (hkp : k ≠ p) (hk : k ∣ p) : ¬ Prime p := by
   dsimp [Prime]
