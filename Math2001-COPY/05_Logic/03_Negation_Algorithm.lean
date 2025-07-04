@@ -101,7 +101,7 @@ example (P Q : Prop) : ¬ (P → Q) ↔ (P ∧ ¬ Q) := by
   · intro h1
     obtain ⟨h2,h3⟩:=h1
     intro h4
-    have h5:Q:=h4 h2
+    have h5: Q := h4 h2
     contradiction
 
 
@@ -181,13 +181,28 @@ example : ¬ Int.Even 7 := by
 example {p : ℕ} (k : ℕ) (hk1 : k ≠ 1) (hkp : k ≠ p) (hk : k ∣ p) : ¬ Prime p := by
   dsimp [Prime]
   push_neg
-  sorry
+  obtain h1|h1:=le_or_succ_le p 1
+  · left
+    addarith[h1]
+  · right
+    use k
+    constructor
+    · apply hk
+    · constructor
+      · apply hk1
+      · apply hkp
 
 example : ¬ ∃ a : ℤ, ∀ n : ℤ, 2 * a ^ 3 ≥ n * a + 7 := by
-  sorry
+  push_neg
+  intro a
+  use 2*a^2
+  conv => ring
+  extra
 
 example {p : ℕ} (hp : ¬ Prime p) (hp2 : 2 ≤ p) : ∃ m, 2 ≤ m ∧ m < p ∧ m ∣ p := by
   have H : ¬ (∀ (m : ℕ), 2 ≤ m → m < p → ¬m ∣ p)
   · intro H
-    sorry
-  sorry
+    have h1: Prime p := prime_test hp2 H
+    contradiction
+  push_neg at H
+  apply H
