@@ -161,8 +161,7 @@ example : ¬ (∃ t : ℝ, t ≤ 4 ∧ t ≥ 5) := by
   intro t
   obtain h1|h1:=le_or_lt t 4
   · right
-    calc t<=4:=h1
-      _<5:=by numbers
+    addarith[h1]
   · left
     apply h1
 
@@ -201,8 +200,8 @@ example : ¬ ∃ a : ℤ, ∀ n : ℤ, 2 * a ^ 3 ≥ n * a + 7 := by
 
 example {p : ℕ} (hp : ¬ Prime p) (hp2 : 2 ≤ p) : ∃ m, 2 ≤ m ∧ m < p ∧ m ∣ p := by
   have H : ¬ (∀ (m : ℕ), 2 ≤ m → m < p → ¬m ∣ p)
-  · intro H
-    have h1: Prime p := prime_test hp2 H
+  · intro h
+    have h1: Prime p := prime_test hp2 h
     contradiction
   push_neg at H
   apply H
