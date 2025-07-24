@@ -215,7 +215,21 @@ example : forall_sufficiently_large n : ℕ, 2 ^ n ≥ n ^ 3 := by
       _>=(k+1)^3:=by extra
 
 theorem Odd.pow {a : ℕ} (ha : Odd a) (n : ℕ) : Odd (a ^ n) := by
-  sorry
+  simple_induction n with k IH
+  · use 0
+    ring
+  · dsimp[Odd] at *
+    obtain⟨k1,hk1⟩:=IH
+    obtain⟨k2,hk2⟩:=ha
+    use 2*k1*k2+k1+k2
+    calc a^(k+1)=a*(a^k):=by ring
+      _=a*(2*k1+1):=by rw[hk1]
+      _=(2*k2+1)*(2*k1+1):=by rw[hk2]
+      _=2*(2*k1*k2+k1+k2)+1:=by ring
 
 theorem Nat.even_of_pow_even {a n : ℕ} (ha : Even (a ^ n)) : Even a := by
-  sorry
+  obtain h1|h1:=Nat.even_or_odd a
+  · apply h1
+  · have h2: Odd (a^n):=by apply Odd.pow h1
+    rw[Nat.odd_iff_not_even] at h2
+    contradiction
